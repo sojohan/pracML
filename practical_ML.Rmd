@@ -1,0 +1,111 @@
+---
+title: "Prediction Assignment Writeup"
+author: "sojohan"
+date: "1 maj 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Management Summary
+
+Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. In this project, your goal will be to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. More information is available from the website here: http://groupware.les.inf.puc-rio.br/har (see the section on the Weight Lifting Exercise Dataset).
+
+In this study I compare two different machine learning algorithms and select the one with highest accuracy. 
+The classe variable that I want to predict is a multi class classification problem and we can compare models by accuracy, ROC and AUC. The caret package calculates all these measures and I use the confusionMatrix function to do this. I will describe the two machine learning algorithms and explain the cross validation strategy I have used. 
+
+At the end I will use my selected algorithm on the testing data we have recieved. 
+
+## Data preperation
+
+I use the plyr, dplyr and the caret packages.
+
+```{r echo=FALSE}
+require(plyr)
+require(dplyr)
+require(caret)
+```
+
+First I import the data:
+
+```{r echo=TRUE}
+train_data <- read.csv("C:/Projects/Coursera/PracticalMachineLearning/pml-training.csv",header=TRUE, na.strings=c("NA", "#DIV/0!"))
+test_data <- read.csv("C:/Projects/Coursera/PracticalMachineLearning/pml-testing.csv", header=TRUE,na.strings=c("NA", "#DIV/0!"))
+```
+
+The data set contains variables like mean, standard deviation,kurtosis, min & max. All these variables are derived from the measured variables. 
+
+In addition we need to take out all NA's' and time variables plus the user_name:
+
+```{r echo=TRUE}
+
+reduce_data<-train_data[, apply(train_data, 2, function(x) !any(is.na(x)))] 
+reduce_data<-reduce_data[,-(1:7)]
+```
+I use the same variables in the testing data set and I set the target classe to be factor type. 
+
+```{r echo=TRUE}
+CleanTdata<-test_data[,names(reduce_data[,-53])]
+reduce_data$classe<-as.factor(reduce_data$classe)
+```
+
+
+
+## Machine Learning Experiments
+
+I compare to machine learning algorithms the Gradient Boosting trees (GBM) and the randomforest model. 
+I split the training data set (reduce_data) in two parts 60 % for estimation and 40 % testing. This is done with the function CreateDataPartition function from the caret package. 
+
+```{r echo=TRUE}
+set.seed(12550)
+trainIndex <- createDataPartition(reduce_data$classe, p = 0.60,list=FALSE)
+training<- reduce_data[trainIndex,]
+testing <- reduce_data[-trainIndex,]
+```
+
+The first method I will try is GBM. I use the TrainControl caret function to use cross validation. When I set the option method="cv" I get the cross validation with 5-folds. This strategy is also used for the random forest method. The code is: 
+
+```{r echo=TRUE, cache=TRUE}
+set.seed(13333)
+fitcontrol1 <- trainControl(method = "cv", number = 5,allowParallel = T,verbose=T)
+mod2 <- train(training$classe ~ .,method="gbm", data=training,  trControl = fitcontrol1,verbose = F)
+
+```
+
+I can then predict on the testing data and calculate the accuracy with confusion matrix function:
+
+```{r echo=TRUE}
+pred2 <- predict(mod2,testing)
+confusionMatrix(pred2, testing$classe)
+```
+
+The model accuracy is 0.96 - Not bad. The final model I will try is the randomforest model: 
+
+```{r echo=TRUE, cache=TRUE}
+set.seed(13333)
+
+fitcontrol2<-trainControl(method="cv", number=5, allowParallel=T, verbose=T)
+mod3 <- train(training$classe ~ .,method="rf", trControl=fitcontrol2, data=training,verbose = F)
+
+```
+
+
+And the model performance is: 
+
+```{r echo=TRUE}
+pred3 <- predict(mod3,testing)
+confusionMatrix(pred3, testing$classe)
+```
+
+The accuracy is 0.99 and I select this model. 
+
+I can then apply this model to the out-of-sample testing data (CleanTData):
+
+```{r echo=TRUE}
+predict(mod3, CleanTdata)
+
+```
+
+
