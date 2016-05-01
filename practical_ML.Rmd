@@ -105,7 +105,6 @@ I can then apply this model to the out-of-sample testing data (CleanTData):
 
 ```{r echo=TRUE}
 predict(mod3, CleanTdata)
-
 ```
 
 

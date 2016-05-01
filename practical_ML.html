@@ -214,8 +214,18 @@ mod2 &lt;- train(training$classe ~ .,method=&quot;gbm&quot;, data=training,  trC
 ## Selecting tuning parameters
 ## Fitting n.trees = 150, interaction.depth = 3, shrinkage = 0.1, n.minobsinnode = 10 on full training set</code></pre>
 <p>I can then predict on the testing data and calculate the accuracy with confusion matrix function:</p>
-<pre class="r"><code>pred2 &lt;- predict(mod2,testing)
-confusionMatrix(pred2, testing$classe)</code></pre>
+<pre class="r"><code>pred2 &lt;- predict(mod2,testing)</code></pre>
+<pre><code>## Loading required package: gbm</code></pre>
+<pre><code>## Loading required package: survival</code></pre>
+<pre><code>## 
+## Attaching package: 'survival'</code></pre>
+<pre><code>## The following object is masked from 'package:caret':
+## 
+##     cluster</code></pre>
+<pre><code>## Loading required package: splines</code></pre>
+<pre><code>## Loading required package: parallel</code></pre>
+<pre><code>## Loaded gbm 2.1.1</code></pre>
+<pre class="r"><code>confusionMatrix(pred2, testing$classe)</code></pre>
 <pre><code>## Confusion Matrix and Statistics
 ## 
 ##           Reference
@@ -297,16 +307,27 @@ mod3 &lt;- train(training$classe ~ .,method=&quot;rf&quot;, trControl=fitcontrol
 ## Selecting tuning parameters
 ## Fitting mtry = 27 on full training set</code></pre>
 <p>And the model performance is:</p>
-<pre class="r"><code>pred3 &lt;- predict(mod3,testing)
-confusionMatrix(pred3, testing$classe)</code></pre>
+<pre class="r"><code>pred3 &lt;- predict(mod3,testing)</code></pre>
+<pre><code>## Loading required package: randomForest</code></pre>
+<pre><code>## randomForest 4.6-12</code></pre>
+<pre><code>## Type rfNews() to see new features/changes/bug fixes.</code></pre>
+<pre><code>## 
+## Attaching package: 'randomForest'</code></pre>
+<pre><code>## The following object is masked from 'package:ggplot2':
+## 
+##     margin</code></pre>
+<pre><code>## The following object is masked from 'package:dplyr':
+## 
+##     combine</code></pre>
+<pre class="r"><code>confusionMatrix(pred3, testing$classe)</code></pre>
 <pre><code>## Confusion Matrix and Statistics
 ## 
 ##           Reference
 ## Prediction    A    B    C    D    E
 ##          A 2230   16    0    0    0
-##          B    2 1493   18    0    1
+##          B    2 1493   19    0    1
 ##          C    0    9 1344   19    2
-##          D    0    0    6 1265    6
+##          D    0    0    5 1265    6
 ##          E    0    0    0    2 1433
 ## 
 ## Overall Statistics
@@ -323,13 +344,13 @@ confusionMatrix(pred3, testing$classe)</code></pre>
 ## 
 ##                      Class: A Class: B Class: C Class: D Class: E
 ## Sensitivity            0.9991   0.9835   0.9825   0.9837   0.9938
-## Specificity            0.9971   0.9967   0.9954   0.9982   0.9997
-## Pos Pred Value         0.9929   0.9861   0.9782   0.9906   0.9986
+## Specificity            0.9971   0.9965   0.9954   0.9983   0.9997
+## Pos Pred Value         0.9929   0.9855   0.9782   0.9914   0.9986
 ## Neg Pred Value         0.9996   0.9961   0.9963   0.9968   0.9986
 ## Prevalence             0.2845   0.1935   0.1744   0.1639   0.1838
 ## Detection Rate         0.2842   0.1903   0.1713   0.1612   0.1826
-## Detection Prevalence   0.2863   0.1930   0.1751   0.1628   0.1829
-## Balanced Accuracy      0.9981   0.9901   0.9889   0.9909   0.9967</code></pre>
+## Detection Prevalence   0.2863   0.1931   0.1751   0.1626   0.1829
+## Balanced Accuracy      0.9981   0.9900   0.9889   0.9910   0.9967</code></pre>
 <p>The accuracy is 0.99 and I select this model.</p>
 <p>I can then apply this model to the out-of-sample testing data (CleanTData):</p>
 <pre class="r"><code>predict(mod3, CleanTdata)</code></pre>
