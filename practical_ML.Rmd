@@ -67,7 +67,7 @@ testing <- reduce_data[-trainIndex,]
 
 The first method I will try is GBM. I use the TrainControl caret function to use cross validation. When I set the option method="cv" I get the cross validation with 5-folds. This strategy is also used for the random forest method. The code is: 
 
-```{r echo=TRUE, cache=TRUE}
+```{r echo=TRUE}
 set.seed(13333)
 fitcontrol1 <- trainControl(method = "cv", number = 5,allowParallel = T,verbose=T)
 mod2 <- train(training$classe ~ .,method="gbm", data=training,  trControl = fitcontrol1,verbose = F)
@@ -83,7 +83,7 @@ confusionMatrix(pred2, testing$classe)
 
 The model accuracy is 0.96 - Not bad. The final model I will try is the randomforest model: 
 
-```{r echo=TRUE, cache=TRUE}
+```{r echo=TRUE}
 set.seed(13333)
 
 fitcontrol2<-trainControl(method="cv", number=5, allowParallel=T, verbose=T)

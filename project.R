@@ -6,21 +6,13 @@ require(dplyr)
 
 #install.packages("caret")
 library(caret)
-#library(pROC)
-
-# der skal vÃ¦re noget med noget Korrelation
-
-# Der skal vÃ¦re noget med noget visualisering
-# featurePlot(x = iris[, 1:4],
-#            y = iris$Species,
-#            plot = "pairs",
-#            ## Add a key at the top
-#            auto.key = list(columns = 3))
 
 # import the data
 
 train_data <- read.csv("C:/Projects/Coursera/PracticalMachineLearning/pml-training.csv",header=TRUE, na.strings=c("NA", "#DIV/0!"))
 test_data <- read.csv("C:/Projects/Coursera/PracticalMachineLearning/pml-testing.csv", header=TRUE,na.strings=c("NA", "#DIV/0!"))
+
+
 # The data set contains variables like mean, standard deviation,kurtosis, min & max. All these variables are derived
 # from the core variables. Going forward I only use these core measured variables and not the derived. 
 
@@ -32,13 +24,8 @@ reduce_data<-reduce_data[,-(1:7)]
 
 #The same variables as in the training data 
 CleanTdata<-test_data[,names(reduce_data[,-53])]
-
-
-
-
-
-
 reduce_data$classe<-as.factor(reduce_data$classe)
+
 # A quick overview of the variables I conclude that there is no NA's in the dataset
 #summary(reduce_data)
 
@@ -55,19 +42,19 @@ reduce_data$classe<-as.factor(reduce_data$classe)
 #reduce_data<- reduce_data[,-highlyCor]
 #reduce_data<-cbind(user_name=temp$user_name,reduce_data)
 
+
+
 set.seed(12550)
 trainIndex <- createDataPartition(reduce_data$classe, p = 0.60,list=FALSE)
 training<- reduce_data[trainIndex,]
 testing <- reduce_data[-trainIndex,]
 
-
-
-
-
 # GBM model
 set.seed(13333)
 fitcontrol1 <- trainControl(method = "cv", number = 5,allowParallel = T,verbose=T)
 mod2 <- train(training$classe ~ .,method="gbm", data=training,  trControl = fitcontrol1,verbose = F)
+
+
 pred2 <- predict(mod2,testing)
 confusionMatrix(pred2, testing$classe)
 
@@ -75,7 +62,9 @@ confusionMatrix(pred2, testing$classe)
 set.seed(13333)
 fitcontrol2<-trainControl(method="cv", number=5, allowParallel=T, verbose=T)
 mod3 <- train(training$classe ~ .,method="rf", trControl=fitcontrol2, data=training,verbose = F)
+
 pred3 <- predict(mod3,testing)
 confusionMatrix(pred3, testing$classe)
 
-
+# The model winner is the random forest model with accuracy at 0.98 
+predict(mod3, CleanTdata)
